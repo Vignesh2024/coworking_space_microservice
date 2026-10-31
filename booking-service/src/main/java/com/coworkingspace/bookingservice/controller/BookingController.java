@@ -21,6 +21,10 @@ public class BookingController {
 
     private  final BookingService bookingService;
 
+    @GetMapping("/helloBookings")
+    public String helloBooking(){
+        return "Hello booking";
+    }
     @GetMapping
     public ResponseEntity<List<BookingRequestDto>>getAllBookings(){
         log.info("Fetching all booking via controller");
