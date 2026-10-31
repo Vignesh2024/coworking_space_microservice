@@ -3,6 +3,8 @@ package com.coworkingspace.spaceservice.controller;
 
 import com.coworkingspace.spaceservice.dto.DeskDto;
 import com.coworkingspace.spaceservice.service.DeskService;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.client.ServiceInstance;
@@ -27,13 +29,20 @@ public class DeskController {
     private  final DiscoveryClient discoveryClient;
 
     @GetMapping("/fetchBookings")
-    public  String fetchFromBookingsService(){
-        //Location
+    public String fetchFromBookingsService(HttpServletRequest request) {
+
+        // Read custom header from API Gateway
+        String header = request.getHeader("X-Custom-Header");
+        log.info("Custom Header: {}", header);
+
+        // Discover Booking Service from Eureka
         List<ServiceInstance> instances =
-                discoveryClient.getInstances("booking-service");
+                discoveryClient.getInstances("BOOKING-SERVICE");
 
         if (instances.isEmpty()) {
-            throw new RuntimeException("Booking service not available in Eureka");
+            throw new RuntimeException(
+                    "Booking service not available in Eureka"
+            );
         }
 
         ServiceInstance serviceInstance = instances.getFirst();
@@ -45,8 +54,6 @@ public class DeskController {
                 .uri(url)
                 .retrieve()
                 .body(String.class);
-
-
     }
     @GetMapping
     public ResponseEntity<List<DeskDto>>getAllDesks(){

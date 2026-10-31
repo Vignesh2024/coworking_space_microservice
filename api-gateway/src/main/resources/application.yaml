@@ -1,0 +1,36 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            # Booking Service
+            - id: booking-service
+              uri: lb://BOOKING-SERVICE
+              predicates:
+                - Path=/api/v1/bookings/**
+              filters:
+                - StripPrefix=2
+                - RedirectTo=302 , https://chaicode.com
+
+            # Space Service
+            - id: space-service
+              uri: lb://SPACE-SERVICE
+              predicates:
+                - Path=/api/v1/spaces/**
+              filters:
+                - StripPrefix=2
+                - AddRequestHeader=X-Custom-Header,CoworkingDesk
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
